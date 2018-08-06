@@ -46,7 +46,7 @@ for wi, w in enumerate(wordList):
     max_sim = max([model.similarity(w, s) for s in sen_list])
     sen_vec.append(max_sim)
     for i, label in enumerate(label_list):
-        if False:
+        if True:
             label_vec[i].append(model.similarity(w, label))
 
 print('-----------------------')
@@ -59,10 +59,12 @@ for i, label in enumerate(label_list):
     cos_sim = cos(sen_vec, label_vec[i])
     result[i] += cos_sim
     
-    max_sim = max([model.similarity(label, w) for w in sen_list])
+    sim_vec = [model.similarity(label, w) for w in sen_list]
+    
+    max_sim = max(sim_vec)
     result[i] += alpha * max_sim
     
-    avrg_sim = sum([model.similarity(label, w) for w in sen_list]) / len(sen_list)
+    avrg_sim = np.sqrt(sum([x * abs(x) for x in sim_vec]) / len(sen_list))
     result[i] += beta * avrg_sim
     
     result[i] /= (1 + alpha + beta)
