@@ -29,19 +29,28 @@ except:
     print("-----\n")
  """
 
-wordList = model.wv.index2word
+# wordList = model.wv.index2word
 
 label_list = ['banana', 'bridge', 'camera', 'hand', 'sheep',
               'computer', 'flower', 'knife', 'moon', 'rain']
-label_list = [w for w in label_list if w in wordList]
+#label_list = ['airplane', 'taxi', 'car', 'truck', 'ship',
+#              'boat', 'bike', 'walk', 'bus', 'sportscar']
+label_list = [w for w in label_list if w in model]
 label_vec = [[] for i in range(len(label_list))]
 
-sentence = 'part of arm with five fingers'
-sen_list = [w for w in sentence.split(' ') if w in wordList]
+wordList = []
+for label in label_list:
+    sim_topn = model.most_similar(label, topn=1000)
+    wordList += [item[0] for item in sim_topn]
+
+print('wordList complete')
+
+sentence = 'metal tool to cut in the kitchen'
+sen_list = [w for w in sentence.split(' ') if w in model]
 sen_vec = []
 
 for wi, w in enumerate(wordList):
-    if wi % 100000 == 0:
+    if wi % 2000 == 0:
         print('word index:', wi)
     max_sim = max([model.similarity(w, s) for s in sen_list])
     sen_vec.append(max_sim)
@@ -49,27 +58,20 @@ for wi, w in enumerate(wordList):
         if True:
             label_vec[i].append(model.similarity(w, label))
 
+print('sen2vec complete')
 print('-----------------------')
 
 alpha, beta = 1, 0.5
 result = [0 for label in label_vec]
 
 for i, label in enumerate(label_list):
-    
     cos_sim = cos(sen_vec, label_vec[i])
-    result[i] += cos_sim
-    
     sim_vec = [model.similarity(label, w) for w in sen_list]
-    
     max_sim = max(sim_vec)
-    result[i] += alpha * max_sim
-    
     avrg_sim = np.sqrt(sum([x * abs(x) for x in sim_vec]) / len(sen_list))
-    result[i] += beta * avrg_sim
-    
-    result[i] /= (1 + alpha + beta)
-    print(label_list[i] + ':', 
-          str(result[i])[:5], 
+    result[i] = (cos_sim + alpha * max_sim + beta * avrg_sim) / (1 + alpha + beta)
+    print(label_list[i] + ':\t' + ('\t' if len(label_list[i]) < 7 else ''), 
+          str(result[i])[:5], '\t',
           str(cos_sim)[:5],
           str(max_sim)[:5], 
           str(avrg_sim)[:5])
