@@ -1,3 +1,7 @@
+'''
+author:jch
+date: 2018/8/16
+'''
 import numpy as np
 import pickle
 import jieba
