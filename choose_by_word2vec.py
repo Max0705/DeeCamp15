@@ -15,6 +15,7 @@ def getStopWords():
     stopWords = []
     for line in lines:
         stopWords.append(line[0:-1])
+    f.close()
     return stopWords
 
 stopWords = getStopWords()
